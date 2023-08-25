@@ -423,12 +423,17 @@ def build_webhooks(
                         [f'{resource.plural}/{handler.subresource}']
                     ),
                     'operations': ['*'] if handler.operation is None else [handler.operation],
-                    'scope': '*',  # doesn't matter since a specific resource is used.
+                    'scope': 'Namespaced',  # doesn't matter since a specific resource is used.
                 }
                 for resource in resources
                 if handler.selector is not None  # None is used only in sub-handlers, ignore here.
                 if handler.selector.check(resource)
             ],
+            "namespaceSelector": {
+                "matchLabels": {
+                "admission-webhook": "enabled"
+                }
+            },
             'objectSelector': _build_labels_selector(handler.labels),
             'clientConfig': _inject_handler_id(client_config, handler.id),
             'timeoutSeconds': 30,  # a permitted maximum is 30.
